@@ -183,11 +183,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default) { (action) in
             //リスト名を入れておく
-            uiTextField.text = folder[self.fromAppDelegate.folderNumber].text
-            try! realm.write {
-                //リスト名を保存
-                folder[self.fromAppDelegate.folderNumber].text = uiTextField.text!
-                if (folder[self.fromAppDelegate.folderNumber].text != "") {
+            //uiTextField.text = folder[self.fromAppDelegate.folderNumber].text
+            if (uiTextField.text! != "") {
+                try! realm.write {
+                    //リスト名を保存
+                    folder[self.fromAppDelegate.folderNumber].text = uiTextField.text!
                     self.label.text = folder[self.fromAppDelegate.folderNumber].text
                     self.label.sizeToFit()
                 }

@@ -2,21 +2,48 @@
 //  AppDelegate.swift
 //  TableViewController
 //
-//  Created by 根津拓真 on 2021/04/18.
+//  Created by Nechan on 2020/02/02.
+//  Copyright © 2020 Nechan. All rights reserved.
 //
 
 import UIKit
+import RealmSwift
 
-@main
+@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
-
+    /* フォルダNo. */
+    public var folderNumber:Int = 0
+    
+    //スキーマバージョン(新しくスキーマを追加したらこのバージョンを上げて)
+    let version:UInt64 = 1
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        //realmのマイグレーション
+        let config = Realm.Configuration(
+          // スキーマバージョン設定
+          schemaVersion: version,
+
+          // 実際のマイグレーション処理　古いスキーマバージョンのRealmを開こうとすると自動的にマイグレーションが実行
+          migrationBlock: { migration, oldSchemaVersion in
+            // 初めてのマイグレーションの場合、oldSchemaVersionは0
+            if (oldSchemaVersion < self.version) {
+              // 変更点を自動的に認識しスキーマをアップデートする（ここで勝手にするから何も書かない）
+            }
+          })
+
+        // デフォルトRealmに新しい設定適用
+        Realm.Configuration.defaultConfiguration = config
+
+        // Realmを開こうとしたときスキーマバージョンが異なれば、自動的にマイグレーションが実行
+        let _ = try! Realm()
+        
         return true
     }
 
+    private func applicationDidFinishLaunching(_ aNotification: Notification) {
+    }
+    
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
@@ -30,7 +57,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
 
 }
 

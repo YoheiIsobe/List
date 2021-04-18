@@ -2,7 +2,8 @@
 //  ViewController.swift
 //  TableViewController
 //
-//  Created by 根津拓真 on 2021/04/18.
+//  Created by Nechan on 2020/02/02.
+//  Copyright © 2020 Nechan. All rights reserved.
 //
 
 import UIKit

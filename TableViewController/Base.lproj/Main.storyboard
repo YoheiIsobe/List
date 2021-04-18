@@ -66,6 +66,9 @@
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                         <textInputTraits key="textInputTraits"/>
+                                        <connections>
+                                            <action selector="textChanged:" destination="en8-Q6-V4f" eventType="editingChanged" id="Mjr-he-S8n"/>
+                                        </connections>
                                     </textField>
                                 </subviews>
                                 <constraints>
@@ -107,7 +110,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PFo-cG-uwZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1396" y="483"/>
+            <point key="canvasLocation" x="1395.6521739130435" y="482.8125"/>
         </scene>
         <!--フォルダ-->
         <scene sceneID="A4E-p5-Vfc">
@@ -125,11 +128,11 @@
                                 </constraints>
                                 <color key="sectionIndexBackgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="folderCell" id="Qq1-EZ-P5Z">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="folderCell" id="Qq1-EZ-P5Z">
                                         <rect key="frame" x="0.0" y="28" width="394" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Qq1-EZ-P5Z" id="fU7-D6-WIt">
-                                            <rect key="frame" x="0.0" y="0.0" width="394" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="363" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>

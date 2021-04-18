@@ -39,6 +39,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     /* セルに入れられる最大文字数 */
     var maxLength: Int = 20
     
+    var tmpText = ""
+    
     /* 広告 */
     var bannerView: GADBannerView!
     
@@ -244,6 +246,12 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     // 完了ボタン押下
     @IBAction func pushDoneButton(_ sender: Any) {
+        //未確定のテキストを保存
+        addText(text: tmpText)
+        
+        //リロード
+        self.tableView.reloadData()
+        
         // キーボードを閉じる
         textField.resignFirstResponder()
     }
@@ -267,6 +275,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             }
             /* テキストフィールド内の文字を削除 */
             textField.text = ""
+            //保存後、テキストを削除
+            tmpText = ""
             
             // キーボードが重なっていたらスクロールさせる
             scrollUpdate()
@@ -334,6 +344,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
     }
     
+    //テキストが更新されたとき
+    @IBAction func textChanged(_ textField: UITextField) {
+        tmpText = textField.text!
+    }
+    
     // 画面に表示される直前に呼ばれる
     override func viewWillAppear(_ animated: Bool) {
         // キーボード通知
@@ -346,7 +361,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
                name: UIResponder.keyboardDidHideNotification,
                object: nil)
     }
-    
+
     // viewが表示されなくなる直前に呼ばれる(FolderViewへ遷移するとき)
     override func viewWillDisappear(_ animated: Bool) {
           super.viewWillDisappear(animated)
@@ -358,6 +373,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         NotificationCenter.default.removeObserver(self,
                name: UIResponder.keyboardDidHideNotification,
               object: self.view.window)
+        
+        //未確定のテキストを保存
+        addText(text: tmpText)
         
         //バックボタン
         if self.isMovingFromParent {
@@ -375,6 +393,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
                 try! realm.write {
                     realm.add(folder)
                 }
+                
                 //リロード
                 self.tableView.reloadData()
             }

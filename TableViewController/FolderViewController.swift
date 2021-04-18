@@ -19,6 +19,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     
     let rgba = UIColor(red: 44/255, green: 138/255, blue: 255/255, alpha: 1.0)
     let rgbb = UIColor(red: 44/255, green: 138/255, blue: 255/255, alpha: 0.2)
+    var maxFolderCount = 6
     
     let fromAppDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
     
@@ -43,6 +44,14 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         addButton.layer.borderColor = rgba.cgColor
         addButton.layer.cornerRadius = 25
         addButton.setTitleColor(rgba, for: UIControl.State.normal)
+        
+        // 画面サイズ取得
+        let screenSize: CGRect = UIScreen.main.bounds
+        let screenWidth = screenSize.width
+        // ディスプレイ幅375以下:6、376以上:9
+        if(screenWidth >= 375) {
+            maxFolderCount = 9
+        }
         
         //リロード
         self.tableView.reloadData()
@@ -137,7 +146,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
         
         //フォルダの個数制限（暫定対応）
-        if folders.count < 6
+        if folders.count < maxFolderCount
         {
             fromAppDelegate.folderNumber = folders.count
         

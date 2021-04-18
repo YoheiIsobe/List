@@ -49,9 +49,9 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         let screenSize: CGRect = UIScreen.main.bounds
         let screenWidth = screenSize.width
         // ディスプレイ幅375以下:6、376以上:9
-        if(screenWidth >= 375) {
-            maxFolderCount = 9
-        }
+//        if(screenWidth >= 375) {
+//            maxFolderCount = 9
+//        }
         
         //リロード
         self.tableView.reloadData()

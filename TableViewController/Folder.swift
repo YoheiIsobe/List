@@ -12,5 +12,5 @@ import RealmSwift
 class Folder: Object {
     @objc dynamic var id = 0
 
-    @objc dynamic var text = ""
+    @objc dynamic var text = "リスト"
 }

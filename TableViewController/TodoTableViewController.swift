@@ -41,25 +41,15 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     var tmpText = ""
     
+    //ラベル生成
+    let label = UILabel()
+    
     /* 広告 */
     var bannerView: GADBannerView!
     
     //起動時に呼ばれる
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //ラベル生成
-        let label = UILabel()
-        label.text = "リスト"
-        
-        label.sizeToFit()
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(TodoTableViewController.labelTapped))
-        label.addGestureRecognizer(tap)
-        // ラベル設定
-        label.isUserInteractionEnabled = true
-        
-        self.navigationItem.titleView = label
         
         // appデリゲート設定(アプリ終了時の処理に必要)
         let appDelegate:AppDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -107,11 +97,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             textField.becomeFirstResponder()
         }
 
-        //navigationBar.backButtonTitle = "フォルダ"
         doneButton.isEnabled = false
         doneButton.title = ""
-        
-        navigationBar.title = ("リスト " + String(fromAppDelegate.folderNumber + 1))
         
         /* キーボードの改行ボタンを[完了]にする */
         textField.returnKeyType = .done
@@ -177,10 +164,10 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
         return cell
     }
-
-
+    
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
+        
         // テーブルビューの高さをセルの高さと合わせる
         tableViewHeight.constant = CGFloat(tableView.contentSize.height)
     }
@@ -189,14 +176,29 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     // タイトルラベルタップ
     @objc func labelTapped(tapGestureRecognizer: UITapGestureRecognizer) {
+        let realm = try! Realm()
+        let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        
         var uiTextField = UITextField()
         let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default) { (action) in
-             //print(uiTextField.text!)
+            //リスト名を入れておく
+            uiTextField.text = folder[self.fromAppDelegate.folderNumber].text
+            try! realm.write {
+                //リスト名を保存
+                folder[self.fromAppDelegate.folderNumber].text = uiTextField.text!
+                if (folder[self.fromAppDelegate.folderNumber].text != "") {
+                    self.label.text = folder[self.fromAppDelegate.folderNumber].text
+                    self.label.sizeToFit()
+                }
+            }
+            
+            //リロード
+            self.tableView.reloadData()
         }
         //テキストフィールド追加
         alert.addTextField { (textField) in
-            textField.placeholder = "リスト 1"
+            textField.placeholder = folder[self.fromAppDelegate.folderNumber].text
             uiTextField = textField
         }
         //OKボタン追加
@@ -387,8 +389,25 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
                                               selector: #selector(self.keyboardWillHide(_:)) ,
                name: UIResponder.keyboardDidHideNotification,
                object: nil)
+        
+        
+        //フォルダが増える場合は追加する
+        addFolder()
+        
+        let realm = try! Realm()
+        let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        
+        label.text = folder[fromAppDelegate.folderNumber].text
+        label.sizeToFit()
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(TodoTableViewController.labelTapped))
+        label.addGestureRecognizer(tap)
+        // ラベル設定
+        label.isUserInteractionEnabled = true
+        
+        self.navigationItem.titleView = label
     }
-
+    
     // viewが表示されなくなる直前に呼ばれる(FolderViewへ遷移するとき)
     override func viewWillDisappear(_ animated: Bool) {
           super.viewWillDisappear(animated)
@@ -406,23 +425,51 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         
         //バックボタン
         if self.isMovingFromParent {
-            //フォルダが増える場合は追加する
-            addFolder()
+            //todoの数が0であれば消す
+            let realm = try! Realm()
+            let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+            
+            if (todos.count == 0) {
+                let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+                
+                let deleteFolder = folders.filter("id == %@",fromAppDelegate.folderNumber)
+                let deleteTodos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+                
+                try! realm.write {
+                    realm.delete(deleteFolder)
+                    realm.delete(deleteTodos)
+                    
+                    //削除したフォルダより下にあるフォルダを抽出
+                    for i in 0 ..<  (folders.count - fromAppDelegate.folderNumber)
+                    {
+                        let underFolder = folders[fromAppDelegate.folderNumber + i]
+                        let underTasks = realm.objects(Task.self).filter("id == %@", fromAppDelegate.folderNumber + i + 1).sorted(byKeyPath: "date")
+                        
+                        underFolder.id -= 1
+
+                        //フォルダ内のタスクのidを更新する。（ポインタなのでidを更新したタスクから、underTasks配列から無くなっていく)
+                        for _ in 0 ..<  underTasks.count
+                        {
+                            underTasks[0].id -= 1
+                        }
+                    }
+                }
+            }
         }
     }
     
     //フォルダ追加
     func addFolder() {
         let realm = try! Realm()
-        let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+        //let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
         let folders = realm.objects(Folder.self)
         
-        if ((todos.count != 0) && (fromAppDelegate.folderNumber >= folders.count)) {
+        if (fromAppDelegate.folderNumber >= folders.count) {
             let folder = Folder()
             //idを設定
             folder.id = fromAppDelegate.folderNumber
             //テキストを反映
-            folder.text = ("リスト " + String(fromAppDelegate.folderNumber + 1))
+            folder.text = ("リスト " + String(folders.count + 1))
             //データベースに書き込み
             try! realm.write {
                 realm.add(folder)

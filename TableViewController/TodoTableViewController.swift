@@ -48,6 +48,20 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //ラベル生成
+        let label = UILabel()
+        label.text = "リスト"
+        
+        label.sizeToFit()
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(TodoTableViewController.labelTapped))
+        label.addGestureRecognizer(tap)
+        // ラベル設定
+        label.isUserInteractionEnabled = true
+        
+        self.navigationItem.titleView = label
+        
+        // appデリゲート設定(アプリ終了時の処理に必要)
         let appDelegate:AppDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.viewController = self
         
@@ -173,9 +187,22 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
 
     /* ---------------------ユーザー操作----------------------------- */
     
-    // タップ
-    func tapped(tapGestureRecognizer: UITapGestureRecognizer) {
-        print("tapped.")
+    // タイトルラベルタップ
+    @objc func labelTapped(tapGestureRecognizer: UITapGestureRecognizer) {
+        var uiTextField = UITextField()
+        let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default) { (action) in
+             //print(uiTextField.text!)
+        }
+        //テキストフィールド追加
+        alert.addTextField { (textField) in
+            textField.placeholder = "リスト 1"
+            uiTextField = textField
+        }
+        //OKボタン追加
+        alert.addAction(action)
+        //アラート表示
+        present(alert, animated: true, completion: nil)
     }
     
     // セルが選択された時

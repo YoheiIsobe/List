@@ -26,7 +26,7 @@
             </objects>
             <point key="canvasLocation" x="-416" y="483"/>
         </scene>
-        <!--やることリスト-->
+        <!--Todo Table View Controller-->
         <scene sceneID="15G-Ru-z9r">
             <objects>
                 <viewController id="en8-Q6-V4f" customClass="TodoTableViewController" customModule="ToDay" customModuleProvider="target" sceneMemberID="viewController">
@@ -91,7 +91,7 @@
                             <constraint firstItem="cT7-qh-gA6" firstAttribute="top" secondItem="L6j-kb-Q92" secondAttribute="top" constant="15" id="qo6-hj-urY"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="やることリスト" leftItemsSupplementBackButton="YES" id="NQp-Xb-7vg">
+                    <navigationItem key="navigationItem" leftItemsSupplementBackButton="YES" id="NQp-Xb-7vg">
                         <barButtonItem key="rightBarButtonItem" title="完了" id="XYW-gv-pED">
                             <connections>
                                 <action selector="pushDoneButton:" destination="en8-Q6-V4f" id="2Iw-R3-tkC"/>

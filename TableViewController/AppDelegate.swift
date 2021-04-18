@@ -14,6 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     /* フォルダNo. */
     public var folderNumber:Int = 0
     
+    var viewController: TodoTableViewController!
+    
     //スキーマバージョン(新しくスキーマを追加したらこのバージョンを上げて)
     let version:UInt64 = 1
     
@@ -56,6 +58,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        //未確定のテキストを保存
+        appDelegate.viewController.addText(text: viewController.tmpText)
+        //フォルダが増える場合は追加する
+        appDelegate.viewController.addFolder()
+        
+        // アプリ終了時
+        print("append")
+        
+        
     }
 
 }

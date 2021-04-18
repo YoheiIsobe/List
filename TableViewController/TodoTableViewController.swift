@@ -48,6 +48,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let appDelegate:AppDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.viewController = self
+        
         // ドラッグ&ドロップのデリゲート設定
         tableView.dataSource = self
         tableView.dragDelegate = self
@@ -238,8 +241,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             text = String(text.prefix(maxLength))
             //テキスト追加
             self.addText(text: text)
-            //リロード
-            self.tableView.reloadData()
         }
         return true
     }
@@ -249,16 +250,13 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         //未確定のテキストを保存
         addText(text: tmpText)
         
-        //リロード
-        self.tableView.reloadData()
-        
         // キーボードを閉じる
         textField.resignFirstResponder()
     }
     
     /* ---------------------共通関数----------------------------- */
     //テーブルビューに追加処理
-    func addText(text: String){
+    public func addText(text: String){
         //空白ではない場合
         if text != "" {
             let realm = try! Realm()
@@ -277,6 +275,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             textField.text = ""
             //保存後、テキストを削除
             tmpText = ""
+            //リロード
+            self.tableView.reloadData()
             
             // キーボードが重なっていたらスクロールさせる
             scrollUpdate()
@@ -379,24 +379,30 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         
         //バックボタン
         if self.isMovingFromParent {
-            let realm = try! Realm()
-            let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
-            let folders = realm.objects(Folder.self)
-            
-            if ((todos.count != 0) && (fromAppDelegate.folderNumber >= folders.count)) {
-                let folder = Folder()
-                //idを設定
-                folder.id = fromAppDelegate.folderNumber
-                //テキストを反映
-                folder.text = ("リスト " + String(fromAppDelegate.folderNumber + 1))
-                //データベースに書き込み
-                try! realm.write {
-                    realm.add(folder)
-                }
-                
-                //リロード
-                self.tableView.reloadData()
+            //フォルダが増える場合は追加する
+            addFolder()
+        }
+    }
+    
+    //フォルダ追加
+    func addFolder() {
+        let realm = try! Realm()
+        let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+        let folders = realm.objects(Folder.self)
+        
+        if ((todos.count != 0) && (fromAppDelegate.folderNumber >= folders.count)) {
+            let folder = Folder()
+            //idを設定
+            folder.id = fromAppDelegate.folderNumber
+            //テキストを反映
+            folder.text = ("リスト " + String(fromAppDelegate.folderNumber + 1))
+            //データベースに書き込み
+            try! realm.write {
+                realm.add(folder)
             }
+            
+            //リロード
+            self.tableView.reloadData()
         }
     }
     

@@ -41,6 +41,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     var tmpText = ""
     
+    //タイトルラベル変更中
+    var titleLabelChange = true
+    
     //ラベル生成
     let label = UILabel()
     
@@ -100,6 +103,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         doneButton.isEnabled = false
         doneButton.title = ""
         
+        // ラベル変更完了に初期化
+        self.titleLabelChange = false
         /* キーボードの改行ボタンを[完了]にする */
         textField.returnKeyType = .done
         //チェックマークを複数選択可
@@ -176,25 +181,28 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     // タイトルラベルタップ
     @objc func labelTapped(tapGestureRecognizer: UITapGestureRecognizer) {
+        // ラべル変更中
+        titleLabelChange = true
+        
         let realm = try! Realm()
         let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
         
         var uiTextField = UITextField()
         let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .default) { (action) in
-            //リスト名を入れておく
-            //uiTextField.text = folder[self.fromAppDelegate.folderNumber].text
+        let action = UIAlertAction(title: "OK", style: .default) { [self] (action) in
+            // 何か入力されて入れば
             if (uiTextField.text! != "") {
                 try! realm.write {
                     //リスト名を保存
                     folder[self.fromAppDelegate.folderNumber].text = uiTextField.text!
                     self.label.text = folder[self.fromAppDelegate.folderNumber].text
                     self.label.sizeToFit()
+                    //リロード
+                    self.tableView.reloadData()
                 }
             }
-            
-            //リロード
-            self.tableView.reloadData()
+            // ラベル変更完了
+            self.titleLabelChange = false
         }
         //テキストフィールド追加
         alert.addTextField { (textField) in
@@ -246,7 +254,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     // 単体削除
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-
+            //セルの横線設定を削除
+            let cell = tableView.cellForRow(at: indexPath)
+            checkText(selectCell: cell!, checkMark: false)
+            
+            //データ削除
             let realm = try! Realm()
             let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
             let todo = todos[indexPath.row]
@@ -258,7 +270,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
         // タスクが削除されたときに、レイアウトを更新（入力カーソルの高さを合わせる)
         viewWillLayoutSubviews()
-        
         // テキストフィールドをした方向に伸ばす
         textFieldSizeUpdate()
     }
@@ -285,7 +296,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     /* ---------------------共通関数----------------------------- */
     //テーブルビューに追加処理
-    public func addText(text: String){
+    func addText(text: String){
         //空白ではない場合
         if text != "" {
             let realm = try! Realm()
@@ -312,7 +323,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
         else{
             // キーボードを閉じる
-            textField.resignFirstResponder()
+            //textField.resignFirstResponder()
         }
     }
     
@@ -404,7 +415,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         label.addGestureRecognizer(tap)
         // ラベル設定
         label.isUserInteractionEnabled = true
-        
+        //ナビゲーションバーのタイトルを更新
         self.navigationItem.titleView = label
     }
     
@@ -479,7 +490,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             self.tableView.reloadData()
         }
     }
-    
+
     // キーボードが表示された時
     @objc func keyboardWillShow(_ notification: Notification) {
         doneButton.title = "完了"
@@ -512,14 +523,17 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         // テキストフィールドをした方向に伸ばす
         textFieldSizeUpdate()
         
-        // テキストフィールドがキーボードの上辺に被っている
-        if distance >= -150 {
-            // scrollViewのコンテツを上へオフセット + 190.0(追加のオフセット)
-            scrollView.contentOffset.y = distance + 190.0
-        // 被っていない
-        } else {
-            // scrollViewのコンテツを固定させる
-            scrollView.contentOffset.y = 0
+        // ラベル変更中でなければ
+        if titleLabelChange != true {
+            // テキストフィールドがキーボードの上辺に被っている
+            if distance >= -150 {
+                // scrollViewのコンテツを上へオフセット + 190.0(追加のオフセット)
+                scrollView.contentOffset.y = distance + 190.0
+            // 被っていない
+            } else {
+                // scrollViewのコンテツを固定させる
+                scrollView.contentOffset.y = 0
+            }
         }
     }
     

@@ -171,6 +171,11 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="フォルダ" id="b0Y-lL-wRD">
+                        <barButtonItem key="leftBarButtonItem" systemItem="search" id="VCi-j0-El4">
+                            <connections>
+                                <action selector="debugButtonPush:" destination="2Zl-UC-wWH" id="s5L-wb-eoM"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="trash" id="SmR-Ix-b4M">
                             <connections>
                                 <action selector="pushTrashButton:" destination="2Zl-UC-wWH" id="fOa-23-8q3"/>

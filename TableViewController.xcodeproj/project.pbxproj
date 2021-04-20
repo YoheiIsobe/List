@@ -15,6 +15,7 @@
 		F142F23E23E693D200ECB8AD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F142F23C23E693D200ECB8AD /* Main.storyboard */; };
 		F142F24023E693D900ECB8AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F142F23F23E693D900ECB8AD /* Assets.xcassets */; };
 		F14F8AC825F478A10005AE3F /* FolderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14F8AC725F478A10005AE3F /* FolderViewController.swift */; };
+		F15F00BE262F11D00090DF78 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15F00BD262F11D00090DF78 /* SettingViewController.swift */; };
 		F161438825F4E92400FB9D76 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F161438725F4E92400FB9D76 /* Folder.swift */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,7 @@
 		F142F23F23E693D900ECB8AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F142F24423E693D900ECB8AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F14F8AC725F478A10005AE3F /* FolderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderViewController.swift; sourceTree = "<group>"; };
+		F15F00BD262F11D00090DF78 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		F161438725F4E92400FB9D76 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 		F350F6592DB0C3B003A8BDF3 /* Pods-TableViewController.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TableViewController.debug.xcconfig"; path = "Target Support Files/Pods-TableViewController/Pods-TableViewController.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,6 +95,7 @@
 				F161438725F4E92400FB9D76 /* Folder.swift */,
 				F12A4F8C2406AA330013D23E /* TodoTableViewController.swift */,
 				F14F8AC725F478A10005AE3F /* FolderViewController.swift */,
+				F15F00BD262F11D00090DF78 /* SettingViewController.swift */,
 			);
 			path = TableViewController;
 			sourceTree = "<group>";
@@ -216,6 +219,7 @@
 				F12A4F8D2406AA330013D23E /* TodoTableViewController.swift in Sources */,
 				F12A4F8B23E8658B0013D23E /* Task.swift in Sources */,
 				F142F23923E693D200ECB8AD /* SceneDelegate.swift in Sources */,
+				F15F00BE262F11D00090DF78 /* SettingViewController.swift in Sources */,
 				F161438825F4E92400FB9D76 /* Folder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

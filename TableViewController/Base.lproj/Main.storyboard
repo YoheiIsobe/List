@@ -171,9 +171,10 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="フォルダ" id="b0Y-lL-wRD">
-                        <barButtonItem key="leftBarButtonItem" title="Item" image="trash" catalog="system" id="SmR-Ix-b4M">
+                        <barButtonItem key="leftBarButtonItem" title="Item" image="gear" catalog="system" id="SmR-Ix-b4M">
                             <connections>
                                 <action selector="pushTrashButton:" destination="2Zl-UC-wWH" id="fOa-23-8q3"/>
+                                <segue destination="Syv-Vi-E7H" kind="presentation" id="aha-de-Bit"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -188,9 +189,70 @@
             </objects>
             <point key="canvasLocation" x="460.86956521739131" y="482.8125"/>
         </scene>
+        <!--Setting View Controller-->
+        <scene sceneID="gkF-U8-ggX">
+            <objects>
+                <viewController id="Syv-Vi-E7H" customClass="SettingViewController" customModule="ToDay" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="PuL-md-4df">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CPH-5V-iIf">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="56"/>
+                                <items>
+                                    <navigationItem title="設定" id="FT4-oW-sV4">
+                                        <barButtonItem key="leftBarButtonItem" title="Item" image="xmark" catalog="system" id="xFP-uk-rOG">
+                                            <connections>
+                                                <action selector="pushXmark:" destination="Syv-Vi-E7H" id="78g-oN-ABB"/>
+                                            </connections>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" dataMode="prototypes" style="grouped" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="EvQ-pX-q9Q">
+                                <rect key="frame" x="10" y="56" width="394" height="786"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="settingCell" id="fs0-Rz-J4o">
+                                        <rect key="frame" x="0.0" y="55.5" width="394" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="fs0-Rz-J4o" id="7dz-Zl-w5l">
+                                            <rect key="frame" x="0.0" y="0.0" width="394" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="Syv-Vi-E7H" id="V8c-Nf-yls"/>
+                                    <outlet property="delegate" destination="Syv-Vi-E7H" id="g1u-XX-RRb"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="vtl-6b-YWF"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="EvQ-pX-q9Q" secondAttribute="bottom" id="2Gw-KK-F28"/>
+                            <constraint firstItem="EvQ-pX-q9Q" firstAttribute="top" secondItem="CPH-5V-iIf" secondAttribute="bottom" id="8zd-7p-ypr"/>
+                            <constraint firstItem="CPH-5V-iIf" firstAttribute="leading" secondItem="vtl-6b-YWF" secondAttribute="leading" id="H41-Fl-F2d"/>
+                            <constraint firstItem="vtl-6b-YWF" firstAttribute="trailing" secondItem="EvQ-pX-q9Q" secondAttribute="trailing" constant="10" id="JG1-MM-RzZ"/>
+                            <constraint firstItem="CPH-5V-iIf" firstAttribute="trailing" secondItem="vtl-6b-YWF" secondAttribute="trailing" id="eiq-hb-H2J"/>
+                            <constraint firstItem="EvQ-pX-q9Q" firstAttribute="leading" secondItem="vtl-6b-YWF" secondAttribute="leading" constant="10" id="hpG-Vl-Ub6"/>
+                            <constraint firstItem="CPH-5V-iIf" firstAttribute="top" secondItem="vtl-6b-YWF" secondAttribute="top" id="whb-Hz-vZf"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="ths-LL-MSZ"/>
+                    <connections>
+                        <outlet property="settingTableView" destination="EvQ-pX-q9Q" id="gol-R5-hZ8"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="sp7-9i-Fe7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="460.86956521739131" y="1172.5446428571429"/>
+        </scene>
     </scenes>
     <resources>
-        <image name="trash" catalog="system" width="121" height="128"/>
+        <image name="gear" catalog="system" width="128" height="119"/>
+        <image name="xmark" catalog="system" width="128" height="113"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

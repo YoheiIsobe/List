@@ -171,12 +171,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="フォルダ" id="b0Y-lL-wRD">
-                        <barButtonItem key="leftBarButtonItem" systemItem="search" id="VCi-j0-El4">
-                            <connections>
-                                <action selector="debugButtonPush:" destination="2Zl-UC-wWH" id="s5L-wb-eoM"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="trash" id="SmR-Ix-b4M">
+                        <barButtonItem key="leftBarButtonItem" title="Item" image="trash" catalog="system" id="SmR-Ix-b4M">
                             <connections>
                                 <action selector="pushTrashButton:" destination="2Zl-UC-wWH" id="fOa-23-8q3"/>
                             </connections>
@@ -195,6 +190,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="trash" catalog="system" width="121" height="128"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

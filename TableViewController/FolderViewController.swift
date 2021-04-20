@@ -168,7 +168,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     @IBAction func pushTrashButton(_ sender: Any) {
         
         let alert = UIAlertController(title: "全て削除しますか？", message: "この操作は取り消せません", preferredStyle: .alert)
-        let okButton = UIAlertAction(title: "はい", style: .default) { (action) in
+        let okButton = UIAlertAction(title: "全削除", style: .default) { (action) in
             let realm = try! Realm()
             let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
             let todos = realm.objects(Task.self).sorted(byKeyPath: "date")
@@ -179,7 +179,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
             }
             self.tableView.reloadData()
         }
-        let cancelButton = UIAlertAction(title: "いいえ", style: .default) { (action) in }
+        let cancelButton = UIAlertAction(title: "キャンセル", style: .cancel) { (action) in }
         
         //ボタン追加
         alert.addAction(okButton)

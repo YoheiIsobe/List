@@ -436,36 +436,36 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         
         //バックボタン
         if self.isMovingFromParent {
-            //todoの数が0であれば消す
-            let realm = try! Realm()
-            let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
-            
-            if (todos.count == 0) {
-                let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
-                
-                let deleteFolder = folders.filter("id == %@",fromAppDelegate.folderNumber)
-                let deleteTodos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
-                
-                try! realm.write {
-                    realm.delete(deleteFolder)
-                    realm.delete(deleteTodos)
-                    
-                    //削除したフォルダより下にあるフォルダを抽出
-                    for i in 0 ..<  (folders.count - fromAppDelegate.folderNumber)
-                    {
-                        let underFolder = folders[fromAppDelegate.folderNumber + i]
-                        let underTasks = realm.objects(Task.self).filter("id == %@", fromAppDelegate.folderNumber + i + 1).sorted(byKeyPath: "date")
-                        
-                        underFolder.id -= 1
-
-                        //フォルダ内のタスクのidを更新する。（ポインタなのでidを更新したタスクから、underTasks配列から無くなっていく)
-                        for _ in 0 ..<  underTasks.count
-                        {
-                            underTasks[0].id -= 1
-                        }
-                    }
-                }
-            }
+//            //todoの数が0であれば消す
+//            let realm = try! Realm()
+//            let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+//
+//            if (todos.count == 0) {
+//                let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+//
+//                let deleteFolder = folders.filter("id == %@",fromAppDelegate.folderNumber)
+//                let deleteTodos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+//
+//                try! realm.write {
+//                    realm.delete(deleteFolder)
+//                    realm.delete(deleteTodos)
+//
+//                    //削除したフォルダより下にあるフォルダを抽出
+//                    for i in 0 ..<  (folders.count - fromAppDelegate.folderNumber)
+//                    {
+//                        let underFolder = folders[fromAppDelegate.folderNumber + i]
+//                        let underTasks = realm.objects(Task.self).filter("id == %@", fromAppDelegate.folderNumber + i + 1).sorted(byKeyPath: "date")
+//
+//                        underFolder.id -= 1
+//
+//                        //フォルダ内のタスクのidを更新する。（ポインタなのでidを更新したタスクから、underTasks配列から無くなっていく)
+//                        for _ in 0 ..<  underTasks.count
+//                        {
+//                            underTasks[0].id -= 1
+//                        }
+//                    }
+//                }
+//            }
         }
     }
     

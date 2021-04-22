@@ -37,8 +37,14 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     var paddingWidth: Int = 20
     
     /* セルに入れられる最大文字数 */
-    var maxLength: Int = 20
+    let maxLength: Int = 21
+    /* ラベルに入れられる最大文字数 */
+    let labelMaxLength: Int = 10
     
+    //フォントサイズ設定
+    let fontSize: CGFloat! = 17
+    
+    //入力文字列の一時保存用
     var tmpText = ""
     
     //タイトルラベル変更中
@@ -91,7 +97,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: paddingWidth, height: 0))
         //入力テキストサイズ
-        textField.font = UIFont.systemFont(ofSize: 18)
+        textField.font = UIFont.systemFont(ofSize: fontSize)
         textField.leftView = paddingView
         textField.leftViewMode = .always
 
@@ -110,8 +116,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
 //        let defaults = UserDefaults.standard
 //        enterSetting = (defaults.object(forKey: "SETTING") != nil)
         
+        // タイトルラベルを太文字
+        label.font = UIFont.boldSystemFont(ofSize: 17)
         // ラベル変更完了に初期化
         self.titleLabelChange = false
+        
         /* キーボードの改行ボタンを[完了]にする */
         textField.returnKeyType = .done
         //チェックマークを複数選択可
@@ -132,7 +141,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         bannerView.rootViewController = self
         //本番　ca-app-pub-4013798308034554/1853863648
         //テスト　ca-app-pub-3940256099942544/2934735716
-        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         /* ---------------------広告終了---------------------------- */
@@ -143,8 +152,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-    
-    //テーブルビューにセルをいくつ表示させるか
+
+    // セルの個数
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let realm = try! Realm()
         let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber)
@@ -156,7 +165,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "myCell", for: indexPath)
         
-        cell.textLabel?.font = UIFont.systemFont(ofSize: 18)
+        cell.textLabel?.font = UIFont.systemFont(ofSize: fontSize)
         cell.textLabel?.textAlignment = .left
         cell.textLabel?.frame.size.width += 200
         
@@ -179,13 +188,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        
         // テーブルビューの高さをセルの高さと合わせる
         tableViewHeight.constant = CGFloat(tableView.contentSize.height)
     }
 
     /* ---------------------ユーザー操作----------------------------- */
-    
     // タイトルラベルタップ
     @objc func labelTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         // ラべル変更中
@@ -195,6 +202,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
         
         var uiTextField = UITextField()
+        
         let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default) { [self] (action) in
             // 何か入力されて入れば
@@ -213,7 +221,13 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
         //テキストフィールド追加
         alert.addTextField { (textField) in
+            //前回のタイトルを薄く表示
             textField.placeholder = folder[self.fromAppDelegate.folderNumber].text
+
+            //タイトルラベルの文字数制限
+            guard let text = uiTextField.text else { return }
+            uiTextField.text = String(text.prefix(self.labelMaxLength))
+            
             uiTextField = textField
         }
         //OKボタン追加
@@ -296,7 +310,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     @IBAction func pushDoneButton(_ sender: Any) {
         //未確定のテキストを保存
         addText(text: tmpText)
-        
         // キーボードを閉じる
         textField.resignFirstResponder()
     }
@@ -393,6 +406,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     //テキストが更新されたとき
     @IBAction func textChanged(_ textField: UITextField) {
+        //文字数制限
+        guard let text = textField.text else { return }
+        textField.text = String(text.prefix(maxLength))
         tmpText = textField.text!
     }
     
@@ -407,7 +423,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
                                               selector: #selector(self.keyboardWillHide(_:)) ,
                name: UIResponder.keyboardDidHideNotification,
                object: nil)
-        
         
         //フォルダが増える場合は追加する
         addFolder()
@@ -440,40 +455,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         
         //未確定のテキストを保存
         addText(text: tmpText)
-        
-        //バックボタン
-        if self.isMovingFromParent {
-//            //todoの数が0であれば消す
-//            let realm = try! Realm()
-//            let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
-//
-//            if (todos.count == 0) {
-//                let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
-//
-//                let deleteFolder = folders.filter("id == %@",fromAppDelegate.folderNumber)
-//                let deleteTodos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
-//
-//                try! realm.write {
-//                    realm.delete(deleteFolder)
-//                    realm.delete(deleteTodos)
-//
-//                    //削除したフォルダより下にあるフォルダを抽出
-//                    for i in 0 ..<  (folders.count - fromAppDelegate.folderNumber)
-//                    {
-//                        let underFolder = folders[fromAppDelegate.folderNumber + i]
-//                        let underTasks = realm.objects(Task.self).filter("id == %@", fromAppDelegate.folderNumber + i + 1).sorted(byKeyPath: "date")
-//
-//                        underFolder.id -= 1
-//
-//                        //フォルダ内のタスクのidを更新する。（ポインタなのでidを更新したタスクから、underTasks配列から無くなっていく)
-//                        for _ in 0 ..<  underTasks.count
-//                        {
-//                            underTasks[0].id -= 1
-//                        }
-//                    }
-//                }
-//            }
-        }
     }
     
     //フォルダ追加

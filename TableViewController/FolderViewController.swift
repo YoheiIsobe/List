@@ -55,7 +55,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         // Set the ad unit ID to your own ad unit ID here.
         //本番　ca-app-pub-4013798308034554/1853863648
         //テスト　ca-app-pub-3940256099942544/2934735716
-        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         /* ---------------------広告終了---------------------------- */

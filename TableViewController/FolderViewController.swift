@@ -138,11 +138,17 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
         
         //フォルダの個数制限（暫定対応）
-        if folders.count < maxFolderCount
-        {
+        if folders.count < maxFolderCount {
             fromAppDelegate.folderNumber = folders.count
         
             performSegue(withIdentifier: "goToTodoTableView", sender: self)
+        } else {
+            let alert = UIAlertController(title: "上限に達しました", message: "新しくフォルダを作成するには、\nフォルダを1つ削除してください", preferredStyle: .alert)
+            let okButton = UIAlertAction(title: "OK", style: .default) { (action) in }
+            //ボタン追加
+            alert.addAction(okButton)
+            //アラート表示
+            present(alert, animated: true, completion: nil)
         }
     }
     

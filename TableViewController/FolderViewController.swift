@@ -45,14 +45,6 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         addButton.layer.cornerRadius = 25
         addButton.setTitleColor(rgba, for: UIControl.State.normal)
         
-        // 画面サイズ取得
-//        let screenSize: CGRect = UIScreen.main.bounds
-//        let screenWidth = screenSize.width
-        // ディスプレイ幅375以下:6、376以上:9
-//        if(screenWidth >= 375) {
-//            maxFolderCount = 9
-//        }
-        
         //リロード
         self.tableView.reloadData()
 
@@ -166,6 +158,12 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     
     //全データ削除
     @IBAction func pushTrashButton(_ sender: Any) {
+    }
+    
+    //画面遷移から戻ってきたときに実行する関数
+    func callBack() {
+        //リロードデータ
+        tableView.reloadData()
     }
     
     // 単体削除

@@ -46,6 +46,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     //ラベル生成
     let label = UILabel()
+
+    //エンター設定
+    //var enterSetting = false
     
     /* 広告 */
     var bannerView: GADBannerView!
@@ -102,6 +105,10 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
 
         doneButton.isEnabled = false
         doneButton.title = ""
+        
+//        //エンター設定を反映
+//        let defaults = UserDefaults.standard
+//        enterSetting = (defaults.object(forKey: "SETTING") != nil)
         
         // ラベル変更完了に初期化
         self.titleLabelChange = false

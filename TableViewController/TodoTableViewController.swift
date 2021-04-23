@@ -404,14 +404,20 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
     }
     
-    //テキストが更新されたとき
+    //テキストが更新されたとき(文字を保存)
     @IBAction func textChanged(_ textField: UITextField) {
-        //文字数制限
-        guard let text = textField.text else { return }
-        textField.text = String(text.prefix(maxLength))
         tmpText = textField.text!
     }
     
+    //テキストが更新されたとき(文字数制限)
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        // 入力を反映させたテキストを取得する
+        let resultText: String = (textField.text! as NSString).replacingCharacters(in: range, with: string)
+        if resultText.count <= maxLength {
+            return true
+        }
+        return false
+    }
     // 画面に表示される直前に呼ばれる
     override func viewWillAppear(_ animated: Bool) {
         // キーボード通知

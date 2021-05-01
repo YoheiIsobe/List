@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var viewController: TodoTableViewController!
     
     //スキーマバージョン(新しくスキーマを追加したらこのバージョンを上げて)
-    let version:UInt64 = 1
+    let version:UInt64 = 2
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.

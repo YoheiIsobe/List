@@ -99,15 +99,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         textField.font = UIFont.systemFont(ofSize: fontSize)
         textField.leftView = paddingView
         textField.leftViewMode = .always
-
-        let realm = try! Realm()
-        let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
-        /* 1つもタスクがなければ */
-        if(todos.count == 0){
-            //タイトル変更のアラートを出す。初回変更なのでtrue
-            changeTitle(initial: true)
-        }
-
+        
         doneButton.isEnabled = false
         doneButton.title = ""
         
@@ -145,13 +137,83 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         bannerView.load(GADRequest())
         /* ---------------------広告終了---------------------------- */
     }
+    
+    // 画面に表示される直前に呼ばれる
+    override func viewWillAppear(_ animated: Bool) {
+        // キーボード通知
+        NotificationCenter.default.addObserver(self,
+                                              selector: #selector(self.keyboardWillShow(_:)),
+               name: UIResponder.keyboardWillShowNotification,
+               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                              selector: #selector(self.keyboardWillHide(_:)) ,
+               name: UIResponder.keyboardDidHideNotification,
+               object: nil)
+        
+        //フォルダが増える場合は追加する
+        addFolder()
+        
+        let realm = try! Realm()
+        let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        
+        label.text = folder[fromAppDelegate.folderNumber].text
+        label.sizeToFit()
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(TodoTableViewController.labelTapped))
+        label.addGestureRecognizer(tap)
+        // ラベル設定
+        label.isUserInteractionEnabled = true
+        //ナビゲーションバーのタイトルを更新
+        self.navigationItem.titleView = label
+    }
+    
+    //レイアウト処理前に呼ばれる
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        // テーブルビューの高さをセルの高さと合わせる
+        tableViewHeight.constant = CGFloat(tableView.contentSize.height)
+    }
+    
+    // 画面に表示される直前に呼ばれる
+    override func viewDidAppear(_ animated: Bool) {
+        let realm = try! Realm()
+        let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        
+        /* 1つもタスクがなければ */
+        if(todos.count == 0){
+            if folders[self.fromAppDelegate.folderNumber].titleChanged == false {
+                //タイトル変更のアラートを出す。初回変更なのでtrue
+                changeTitle(initial: true)
+            } else {
+                /* キーボードを開く */
+                textField.becomeFirstResponder()
+            }
+        }
+    }
+    
+    // viewが表示されなくなる直前に呼ばれる(FolderViewへ遷移するとき)
+    override func viewWillDisappear(_ animated: Bool) {
+          super.viewWillDisappear(animated)
+          
+        // キーボード通知
+        NotificationCenter.default.removeObserver(self,
+               name: UIResponder.keyboardWillShowNotification,
+              object: self.view.window)
+        NotificationCenter.default.removeObserver(self,
+               name: UIResponder.keyboardDidHideNotification,
+              object: self.view.window)
+        
+        //未確定のテキストを保存
+        addText(text: tmpText)
+    }
+    
 
-    /* ---------------------内部設定---------------------------- */
+    /* ---------------------セル設定---------------------------- */
     //テーブルビューにセクションをいくつ作成するか
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-
     // セルの個数
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let realm = try! Realm()
@@ -159,7 +221,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         
         return todos.count
     }
-    
     //セルの設定
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "myCell", for: indexPath)
@@ -185,14 +246,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         return cell
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        // テーブルビューの高さをセルの高さと合わせる
-        tableViewHeight.constant = CGFloat(tableView.contentSize.height)
-    }
-
+    
     /* ---------------------ユーザー操作----------------------------- */
-    //タイトルラベルタップ
+    //タイトルラベルがタップされたとき
     @objc func labelTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         //2回目以降の変更なのでfalse
         changeTitle(initial: false)
@@ -257,7 +313,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         textFieldSizeUpdate()
     }
 
-    // エンターが押された時の処理
+    // エンターが押されたとき
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if var text = textField.text {
             //文字数制限
@@ -295,17 +351,12 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             }
             /* テキストフィールド内の文字を削除 */
             textField.text = ""
-            //保存後、テキストを削除
+            //追加後、保存用テキストを削除
             tmpText = ""
             //リロード
             self.tableView.reloadData()
-            
             // キーボードが重なっていたらスクロールさせる
             scrollUpdate()
-        }
-        else{
-            // キーボードを閉じる
-            //textField.resignFirstResponder()
         }
     }
     
@@ -351,24 +402,26 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         titleLabelChange = true
 
         let realm = try! Realm()
-        let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
 
         var uiTextField = UITextField()
 
         let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default) { [self] (action) in
-            // 何か入力されて入れば
-            if (uiTextField.text! != "") {
-                try! realm.write {
+            try! realm.write {
+                // 何か入力されて入れば
+                if (uiTextField.text! != "") {
                     //リスト名を保存
-                    folder[self.fromAppDelegate.folderNumber].text = uiTextField.text!
-                    self.label.text = folder[self.fromAppDelegate.folderNumber].text
+                    folders[self.fromAppDelegate.folderNumber].text = uiTextField.text!
+                    self.label.text = folders[self.fromAppDelegate.folderNumber].text
                     self.label.sizeToFit()
                     //リロード
                     self.tableView.reloadData()
                 }
+                //タイトル変更完了状態にする
+                folders[self.fromAppDelegate.folderNumber].titleChanged = true
             }
-            // ラベル変更完了
+            // ラベル変更中を解除
             self.titleLabelChange = false
             //初回のタイトル変更であれば
             if(initial == true){
@@ -381,12 +434,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             // 初回の変更でなければ
             if(initial == false) {
                 //前回のタイトルを薄く表示
-                textField.placeholder = folder[self.fromAppDelegate.folderNumber].text
+                textField.placeholder = folders[self.fromAppDelegate.folderNumber].text
             }
             //タイトルラベルの文字数制限
             guard let text = uiTextField.text else { return }
             uiTextField.text = String(text.prefix(self.labelMaxLength))
-
             uiTextField = textField
         }
         //OKボタン追加
@@ -416,63 +468,16 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
     }
     
-    //テキストが更新されたとき(文字を保存)
-    @IBAction func textChanged(_ textField: UITextField) {
-        tmpText = textField.text!
-    }
-    
-    //テキストが更新されたとき(文字数制限)
+    //テキストが更新されたとき
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        // 入力を反映させたテキストを取得する
+        // 文字を保存
+        tmpText = textField.text!
+        // 入力を反映させたテキストを取得する(文字数制限)
         let resultText: String = (textField.text! as NSString).replacingCharacters(in: range, with: string)
         if resultText.count <= maxLength {
             return true
         }
         return false
-    }
-    // 画面に表示される直前に呼ばれる
-    override func viewWillAppear(_ animated: Bool) {
-        // キーボード通知
-        NotificationCenter.default.addObserver(self,
-                                              selector: #selector(self.keyboardWillShow(_:)),
-               name: UIResponder.keyboardWillShowNotification,
-               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                              selector: #selector(self.keyboardWillHide(_:)) ,
-               name: UIResponder.keyboardDidHideNotification,
-               object: nil)
-        
-        //フォルダが増える場合は追加する
-        addFolder()
-        
-        let realm = try! Realm()
-        let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
-        
-        label.text = folder[fromAppDelegate.folderNumber].text
-        label.sizeToFit()
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(TodoTableViewController.labelTapped))
-        label.addGestureRecognizer(tap)
-        // ラベル設定
-        label.isUserInteractionEnabled = true
-        //ナビゲーションバーのタイトルを更新
-        self.navigationItem.titleView = label
-    }
-    
-    // viewが表示されなくなる直前に呼ばれる(FolderViewへ遷移するとき)
-    override func viewWillDisappear(_ animated: Bool) {
-          super.viewWillDisappear(animated)
-          
-        // キーボード通知
-        NotificationCenter.default.removeObserver(self,
-               name: UIResponder.keyboardWillShowNotification,
-              object: self.view.window)
-        NotificationCenter.default.removeObserver(self,
-               name: UIResponder.keyboardDidHideNotification,
-              object: self.view.window)
-        
-        //未確定のテキストを保存
-        addText(text: tmpText)
     }
     
     //フォルダ追加
@@ -487,6 +492,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             folder.id = fromAppDelegate.folderNumber
             //テキストを反映
             folder.text = ("リスト " + String(folders.count + 1))
+            //タイトル変更未実施状態にする
+            folder.titleChanged = false
             //データベースに書き込み
             try! realm.write {
                 realm.add(folder)

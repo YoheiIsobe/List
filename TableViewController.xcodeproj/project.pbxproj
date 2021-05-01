@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CD2560E006B27E131DF9107F /* Pods_TableViewController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99134CCED68CA20EF341F103 /* Pods_TableViewController.framework */; };
+		F104680F263D46ED0081D060 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F104680E263D46ED0081D060 /* CustomTextField.swift */; };
 		F12A4F8B23E8658B0013D23E /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12A4F8A23E8658B0013D23E /* Task.swift */; };
 		F12A4F8D2406AA330013D23E /* TodoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12A4F8C2406AA330013D23E /* TodoTableViewController.swift */; };
 		F142F23723E693D200ECB8AD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F142F23623E693D200ECB8AD /* AppDelegate.swift */; };
@@ -22,6 +23,7 @@
 /* Begin PBXFileReference section */
 		19F15896390C507B8E816E2B /* Pods-TableViewController.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TableViewController.release.xcconfig"; path = "Target Support Files/Pods-TableViewController/Pods-TableViewController.release.xcconfig"; sourceTree = "<group>"; };
 		99134CCED68CA20EF341F103 /* Pods_TableViewController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TableViewController.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F104680E263D46ED0081D060 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		F12A4F8A23E8658B0013D23E /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		F12A4F8C2406AA330013D23E /* TodoTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoTableViewController.swift; sourceTree = "<group>"; };
 		F142F23323E693D200ECB8AD /* ToDay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDay.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,6 +95,7 @@
 				F142F24423E693D900ECB8AD /* Info.plist */,
 				F12A4F8A23E8658B0013D23E /* Task.swift */,
 				F161438725F4E92400FB9D76 /* Folder.swift */,
+				F104680E263D46ED0081D060 /* CustomTextField.swift */,
 				F12A4F8C2406AA330013D23E /* TodoTableViewController.swift */,
 				F14F8AC725F478A10005AE3F /* FolderViewController.swift */,
 				F15F00BD262F11D00090DF78 /* SettingViewController.swift */,
@@ -218,6 +221,7 @@
 				F14F8AC825F478A10005AE3F /* FolderViewController.swift in Sources */,
 				F12A4F8D2406AA330013D23E /* TodoTableViewController.swift in Sources */,
 				F12A4F8B23E8658B0013D23E /* Task.swift in Sources */,
+				F104680F263D46ED0081D060 /* CustomTextField.swift in Sources */,
 				F142F23923E693D200ECB8AD /* SceneDelegate.swift in Sources */,
 				F15F00BE262F11D00090DF78 /* SettingViewController.swift in Sources */,
 				F161438825F4E92400FB9D76 /* Folder.swift in Sources */,

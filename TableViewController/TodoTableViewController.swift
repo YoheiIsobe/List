@@ -23,41 +23,22 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     @IBOutlet weak var navigationBar: UINavigationItem!
     
-    // キーボードの情報
-    var info: [AnyHashable: Any] = [:]
-    // Screenの高さ
-    var screenHeight:CGFloat!
-    // Screenの幅
-    var screenWidth:CGFloat!
-
-    // デリゲート設定
-    let fromAppDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
+    //設定系変数
+    var paddingWidth: Int = 20          /*セル左側の空白幅(初期設定はディスプレイ幅376以上に合わせて20、375以下は16にする) */
+    let maxLength: Int = 21             /* セルに入れられる最大文字数 */
+    let labelMaxLength: Int = 10        /* ラベルに入れられる最大文字数 */
+    let fontSize: CGFloat! = 17         /* フォントサイズ設定 */
+    //var enterSetting = false          /*エンター設定 */
     
-    // セル左側の空白幅(初期設定はディスプレイ幅376以上に合わせて20、375以下は16にする)
-    var paddingWidth: Int = 20
-    
-    /* セルに入れられる最大文字数 */
-    let maxLength: Int = 21
-    /* ラベルに入れられる最大文字数 */
-    let labelMaxLength: Int = 10
-    
-    //フォントサイズ設定
-    let fontSize: CGFloat! = 17
-    
-    //入力文字列の一時保存用
-    var tmpText = ""
-    
-    //タイトルラベル変更中
-    var titleLabelChange = true
-    
-    //ラベル生成
-    let label = UILabel()
-
-    //エンター設定
-    //var enterSetting = false
-    
-    /* 広告 */
-    var bannerView: GADBannerView!
+    //インスタンス系変数等
+    let fromAppDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate        /* デリゲート */
+    let label = UILabel()               /* ラベル生成 */
+    var info: [AnyHashable: Any] = [:]  /* キーボードの情報 */
+    var screenHeight:CGFloat!           /* Screenの高さ */
+    var screenWidth:CGFloat!            /* Screenの幅 */
+    var tmpText = ""                    /* 入力文字列の一時保存用 */
+    var titleLabelChange = true         /* タイトルラベル変更中 */
+    var bannerView: GADBannerView!      /* 広告 */
     
     //起動時に呼ばれる
     override func viewDidLoad() {
@@ -71,11 +52,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         tableView.dragDelegate = self
         tableView.dropDelegate = self
         tableView.dragInteractionEnabled = true
-        
-        // テキストフィールドのデリゲート設定
-        textField.delegate = self
-        // スクロールビューのデリゲート設定
-        scrollView.delegate = self
+
+        textField.delegate = self   /* テキストフィールドのデリゲート設定 */
+        scrollView.delegate = self  /* スクロールビューのデリゲート設定 */
         
         // 画面サイズ取得
         let screenSize: CGRect = UIScreen.main.bounds
@@ -100,6 +79,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         textField.leftView = paddingView
         textField.leftViewMode = .always
         
+        //完了ボタンを非表示、無効
         doneButton.isEnabled = false
         doneButton.title = ""
         
@@ -400,15 +380,24 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     func changeTitle (initial: Bool) {
         // ラべル変更中
         titleLabelChange = true
+        
+        var displayTitle :String
+        if initial == true {
+            displayTitle = "タイトルを設定"
+        } else {
+            displayTitle = "タイトルを変更"
+        }
 
         let realm = try! Realm()
         let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
 
         var uiTextField = UITextField()
-
-        let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
+        
+        let alert = UIAlertController(title: displayTitle, message: "このリストの名前を入力してください。", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default) { [self] (action) in
             try! realm.write {
+                //タイトル変更完了状態にする
+                folders[self.fromAppDelegate.folderNumber].titleChanged = true
                 // 何か入力されて入れば
                 if (uiTextField.text! != "") {
                     //リスト名を保存
@@ -418,28 +407,30 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
                     //リロード
                     self.tableView.reloadData()
                 }
-                //タイトル変更完了状態にする
-                folders[self.fromAppDelegate.folderNumber].titleChanged = true
             }
             // ラベル変更中を解除
             self.titleLabelChange = false
             //初回のタイトル変更であれば
-            if(initial == true){
+            if (initial == true) {
                 /* キーボードを開く */
                 textField.becomeFirstResponder()
             }
         }
         //テキストフィールド追加
         alert.addTextField { (textField) in
-            // 初回の変更でなければ
-            if(initial == false) {
-                //前回のタイトルを薄く表示
+            /* テキストフィールドに薄く表示 */
+            if initial == true {
+                textField.placeholder = "◯◯◯リスト"
+            } else {
+                //前回のタイトルを表示
                 textField.placeholder = folders[self.fromAppDelegate.folderNumber].text
             }
             //タイトルラベルの文字数制限
             guard let text = uiTextField.text else { return }
             uiTextField.text = String(text.prefix(self.labelMaxLength))
             uiTextField = textField
+            /* キーボードの改行ボタンを[完了]にする */
+            textField.returnKeyType = .done
         }
         //OKボタン追加
         alert.addAction(action)
@@ -447,20 +438,22 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         present(alert, animated: true, completion: nil)
     }
     
-    //文字にチェックマークをつける
+    //チェック機能
     func checkText(selectCell: UITableViewCell, checkMark: Bool){
         if checkMark == true {
+            //チェックマーク
+            //selectCell.accessoryType = .checkmark
+            //透明にする
             selectCell.textLabel?.textColor = .systemGray4
-            //cell?.accessoryType = .checkmark
-            
             //取り消し線を引く
             let atr =  NSMutableAttributedString(string: (selectCell.textLabel?.text)!)
             atr.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, atr.length))
             selectCell.textLabel?.attributedText = atr
         }else{
-            selectCell.textLabel?.textColor = .none
+            //チェックマーク解除
             //selectCell.accessoryType = .none
-            
+            //透明を解除する
+            selectCell.textLabel?.textColor = .none
             //取り消し線をなくす
             let atr =  NSMutableAttributedString(string: (selectCell.textLabel?.text)!)
             atr.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, 0))
@@ -483,7 +476,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     //フォルダ追加
     func addFolder() {
         let realm = try! Realm()
-        //let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
         let folders = realm.objects(Folder.self)
         
         if (fromAppDelegate.folderNumber >= folders.count) {
@@ -498,7 +490,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             try! realm.write {
                 realm.add(folder)
             }
-            
             //リロード
             self.tableView.reloadData()
         }
@@ -506,12 +497,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
 
     // キーボードが表示された時
     @objc func keyboardWillShow(_ notification: Notification) {
+        //完了ボタンを有効、表示
         doneButton.title = "完了"
         doneButton.isEnabled = true
-        
         // キーボード情報を保存
         info = notification.userInfo!
-        
         // テキストフィールドとキーボードの重なりを確認して、必要であればスクロールする
         scrollUpdate()
     }

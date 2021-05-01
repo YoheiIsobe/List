@@ -101,6 +101,13 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         tableView.reloadData()
         //テーブルビューの高さをセルの高さと合わせる
         updateTableHeight()
+        //一番下のセルにスクロール
+        let realm = try! Realm()
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        if folders.count > 0 {
+            let indexPath = NSIndexPath(row: folders.count - 1, section: 0)
+            tableView.scrollToRow(at: indexPath as IndexPath, at:.bottom, animated: false)
+        }
     }
 
     // レイアウト処理開始時(起動時、遷移後)
@@ -108,13 +115,6 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         super.viewWillLayoutSubviews()
         //テーブルビューの高さをセルの高さと合わせる
         updateTableHeight()
-        //一番下のセルにスクロール
-        let realm = try! Realm()
-        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
-//        if folders.count > 0 {
-//            let indexPath = NSIndexPath(row: folders.count - 1, section: 0)
-//            tableView.scrollToRow(at: indexPath as IndexPath, at:.bottom, animated: false)
-//        }
     }
     
     // セルが選択された時
@@ -227,7 +227,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         //テーブルビューの高さをセルの高さと合わせる
         tableViewHeight.constant = CGFloat(tableView.contentSize.height)
     }
-    
+
     /* ---------------------------------広告開始----------------------------------------- */
     func addBannerViewToView(_ bannerView: UIView) {
         bannerView.translatesAutoresizingMaskIntoConstraints = false

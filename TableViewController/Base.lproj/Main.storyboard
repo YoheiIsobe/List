@@ -121,7 +121,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Ygy-vw-UXl">
-                                <rect key="frame" x="10" y="118" width="394" height="500"/>
+                                <rect key="frame" x="10" y="118" width="394" height="544"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="500" id="aQC-P7-3cG"/>
@@ -164,7 +164,7 @@
                         <constraints>
                             <constraint firstItem="Ygy-vw-UXl" firstAttribute="top" secondItem="Uky-zR-Gju" secondAttribute="top" constant="30" id="80z-b5-WRU"/>
                             <constraint firstItem="iU6-01-Zcl" firstAttribute="centerX" secondItem="DjT-cy-CV8" secondAttribute="centerX" id="KZb-TT-Kre"/>
-                            <constraint firstItem="iU6-01-Zcl" firstAttribute="top" secondItem="Ygy-vw-UXl" secondAttribute="bottom" priority="250" constant="40" id="LB2-sd-i1p"/>
+                            <constraint firstItem="iU6-01-Zcl" firstAttribute="top" secondItem="Ygy-vw-UXl" secondAttribute="bottom" constant="40" id="LB2-sd-i1p"/>
                             <constraint firstItem="Ygy-vw-UXl" firstAttribute="leading" secondItem="Uky-zR-Gju" secondAttribute="leading" constant="10" id="Qo0-BX-pUd"/>
                             <constraint firstItem="Uky-zR-Gju" firstAttribute="trailing" secondItem="Ygy-vw-UXl" secondAttribute="trailing" constant="10" id="S0u-tC-q8a"/>
                             <constraint firstItem="Uky-zR-Gju" firstAttribute="bottom" secondItem="iU6-01-Zcl" secondAttribute="bottom" constant="110" id="Xb1-LR-kvy"/>
@@ -203,7 +203,7 @@
                                     <navigationItem title="設定" id="FT4-oW-sV4">
                                         <barButtonItem key="leftBarButtonItem" title="Item" image="xmark" catalog="system" id="xFP-uk-rOG">
                                             <connections>
-                                                <action selector="pushXmark:" destination="Syv-Vi-E7H" id="78g-oN-ABB"/>
+                                                <action selector="pushXmark:" destination="Syv-Vi-E7H" id="yn7-P9-3Jl"/>
                                             </connections>
                                         </barButtonItem>
                                     </navigationItem>

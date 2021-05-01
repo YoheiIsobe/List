@@ -19,7 +19,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     
     let rgba = UIColor(red: 44/255, green: 138/255, blue: 255/255, alpha: 1.0)
     let rgbb = UIColor(red: 44/255, green: 138/255, blue: 255/255, alpha: 0.2)
-    var maxFolderCount = 6
+    var maxFolderCount = 10
     
     let fromAppDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate
     
@@ -98,8 +98,14 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         tableView.reloadData()
         //テーブルビューの高さをセルの高さと合わせる
         updateTableHeight()
+        
+        //一番下のセルにスクロール
+        let realm = try! Realm()
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        let indexPath = NSIndexPath(row: folders.count - 1, section: 0)
+        tableView.scrollToRow(at: indexPath as IndexPath, at:.bottom, animated: false)
     }
-    
+
     // レイアウト処理開始時(起動時、遷移後)
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
@@ -166,7 +172,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     @IBAction func pushTrashButton(_ sender: Any) {
     }
     
-    //画面遷移から戻ってきたときに実行する関数
+    //設定画面から戻ってきたときに実行する関数
     func callBack() {
         //リロードデータ
         tableView.reloadData()

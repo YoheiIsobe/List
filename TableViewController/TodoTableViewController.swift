@@ -62,7 +62,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     //起動時に呼ばれる
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // appデリゲート設定(アプリ終了時の処理に必要)
         let appDelegate:AppDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.viewController = self
@@ -105,8 +104,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
         /* 1つもタスクがなければ */
         if(todos.count == 0){
-            /* キーボードを開く */
-            textField.becomeFirstResponder()
+            //タイトル変更のアラートを出す。初回変更なのでtrue
+            changeTitle(initial: true)
         }
 
         doneButton.isEnabled = false
@@ -193,47 +192,10 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     }
 
     /* ---------------------ユーザー操作----------------------------- */
-    // タイトルラベルタップ
+    //タイトルラベルタップ
     @objc func labelTapped(tapGestureRecognizer: UITapGestureRecognizer) {
-        // ラべル変更中
-        titleLabelChange = true
-        
-        let realm = try! Realm()
-        let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
-        
-        var uiTextField = UITextField()
-        
-        let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .default) { [self] (action) in
-            // 何か入力されて入れば
-            if (uiTextField.text! != "") {
-                try! realm.write {
-                    //リスト名を保存
-                    folder[self.fromAppDelegate.folderNumber].text = uiTextField.text!
-                    self.label.text = folder[self.fromAppDelegate.folderNumber].text
-                    self.label.sizeToFit()
-                    //リロード
-                    self.tableView.reloadData()
-                }
-            }
-            // ラベル変更完了
-            self.titleLabelChange = false
-        }
-        //テキストフィールド追加
-        alert.addTextField { (textField) in
-            //前回のタイトルを薄く表示
-            textField.placeholder = folder[self.fromAppDelegate.folderNumber].text
-
-            //タイトルラベルの文字数制限
-            guard let text = uiTextField.text else { return }
-            uiTextField.text = String(text.prefix(self.labelMaxLength))
-            
-            uiTextField = textField
-        }
-        //OKボタン追加
-        alert.addAction(action)
-        //アラート表示
-        present(alert, animated: true, completion: nil)
+        //2回目以降の変更なのでfalse
+        changeTitle(initial: false)
     }
     
     // セルが選択された時
@@ -381,6 +343,56 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             else{
             }
         }
+    }
+    
+    //ラベル変更
+    func changeTitle (initial: Bool) {
+        // ラべル変更中
+        titleLabelChange = true
+
+        let realm = try! Realm()
+        let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
+
+        var uiTextField = UITextField()
+
+        let alert = UIAlertController(title: "リスト名を変更", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default) { [self] (action) in
+            // 何か入力されて入れば
+            if (uiTextField.text! != "") {
+                try! realm.write {
+                    //リスト名を保存
+                    folder[self.fromAppDelegate.folderNumber].text = uiTextField.text!
+                    self.label.text = folder[self.fromAppDelegate.folderNumber].text
+                    self.label.sizeToFit()
+                    //リロード
+                    self.tableView.reloadData()
+                }
+            }
+            // ラベル変更完了
+            self.titleLabelChange = false
+            //初回のタイトル変更であれば
+            if(initial == true){
+                /* キーボードを開く */
+                textField.becomeFirstResponder()
+            }
+        }
+        //テキストフィールド追加
+        alert.addTextField { (textField) in
+            // 初回の変更でなければ
+            if(initial == false) {
+                //前回のタイトルを薄く表示
+                textField.placeholder = folder[self.fromAppDelegate.folderNumber].text
+            }
+            //タイトルラベルの文字数制限
+            guard let text = uiTextField.text else { return }
+            uiTextField.text = String(text.prefix(self.labelMaxLength))
+
+            uiTextField = textField
+        }
+        //OKボタン追加
+        alert.addAction(action)
+        //アラート表示
+        present(alert, animated: true, completion: nil)
     }
     
     //文字にチェックマークをつける

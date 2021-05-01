@@ -171,23 +171,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             }
         }
     }
-    
-    // viewが表示されなくなる直前に呼ばれる(FolderViewへ遷移するとき)
-    override func viewWillDisappear(_ animated: Bool) {
-          super.viewWillDisappear(animated)
-          
-        // キーボード通知
-        NotificationCenter.default.removeObserver(self,
-               name: UIResponder.keyboardWillShowNotification,
-              object: self.view.window)
-        NotificationCenter.default.removeObserver(self,
-               name: UIResponder.keyboardDidHideNotification,
-              object: self.view.window)
-        
-        //未確定のテキストを保存
-        addText(text: tmpText)
-    }
-    
+
 
     /* ---------------------セル設定---------------------------- */
     //テーブルビューにセクションをいくつ作成するか
@@ -461,10 +445,13 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
     }
     
+    //テキストが更新されたとき(文字を保存)
+    @IBAction func textChanged(_ textField: UITextField) {
+        tmpText = textField.text!
+    }
+    
     //テキストが更新されたとき
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        // 文字を保存
-        tmpText = textField.text!
         // 入力を反映させたテキストを取得する(文字数制限)
         let resultText: String = (textField.text! as NSString).replacingCharacters(in: range, with: string)
         if resultText.count <= maxLength {
@@ -544,6 +531,26 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     func textFieldSizeUpdate(){
         textFieldHeight.constant = CGFloat(screenHeight + tableViewHeight.constant)
     }
+    
+    
+    
+    /* TodoTableView終了時 */
+    // viewが表示されなくなる直前に呼ばれる(FolderViewへ遷移するとき)
+    override func viewWillDisappear(_ animated: Bool) {
+          super.viewWillDisappear(animated)
+          
+        // キーボード通知
+        NotificationCenter.default.removeObserver(self,
+               name: UIResponder.keyboardWillShowNotification,
+              object: self.view.window)
+        NotificationCenter.default.removeObserver(self,
+               name: UIResponder.keyboardDidHideNotification,
+              object: self.view.window)
+        print(tmpText)
+        //未確定のテキストを保存
+        addText(text: tmpText)
+    }
+    
     
     /* ---------------------------------広告開始----------------------------------------- */
     func addBannerViewToView(_ bannerView: UIView) {

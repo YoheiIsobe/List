@@ -66,6 +66,9 @@
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <textInputTraits key="textInputTraits"/>
+                                        <connections>
+                                            <action selector="textChanged:" destination="en8-Q6-V4f" eventType="editingChanged" id="WAG-F3-RTN"/>
+                                        </connections>
                                     </textField>
                                 </subviews>
                                 <constraints>

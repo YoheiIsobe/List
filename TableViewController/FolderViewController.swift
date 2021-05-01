@@ -11,7 +11,7 @@ import RealmSwift
 import AudioToolbox
 import GoogleMobileAds
 
-class FolderViewController: UIViewController ,UITableViewDataSource, UITableViewDelegate {
+class FolderViewController: UIViewController ,UITableViewDataSource, UITableViewDelegate, UITableViewDragDelegate, UITableViewDropDelegate {
     
     @IBOutlet weak var tableViewHeight: NSLayoutConstraint!
     @IBOutlet weak var tableView: UITableView!
@@ -47,6 +47,12 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         addButton.layer.cornerRadius = 25
         addButton.setTitleColor(rgba, for: UIControl.State.normal)
         
+        // ドラッグ&ドロップのデリゲート設定
+        tableView.dataSource = self
+        tableView.dragDelegate = self
+        tableView.dropDelegate = self
+        tableView.dragInteractionEnabled = true
+        
         //リロード
         self.tableView.reloadData()
 
@@ -70,7 +76,6 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     
     //セルの高さ
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        //return 65
         return 60
     }
 
@@ -226,6 +231,51 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         tableView.updateConstraints()
         //テーブルビューの高さをセルの高さと合わせる
         tableViewHeight.constant = CGFloat(tableView.contentSize.height)
+    }
+    
+    
+    // ドラッグ
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        AudioServicesPlaySystemSound(1519)
+        return []
+    }
+    // ドロップ
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+    }
+    
+    //入れ替え制御
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let realm = try! Realm()
+        let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+
+        try! realm.write {
+            /* セルを下から上に移動 */
+            if(sourceIndexPath.row > destinationIndexPath.row){
+//                for i in 0 ..<  (sourceIndexPath.row - destinationIndexPath.row){
+//                    let sourceCell = todos[sourceIndexPath.row - i]
+//                    let DestinationCell = todos[sourceIndexPath.row - i - 1]
+//                    let tmpCell = Task()
+//
+//                    tmpCell.date = sourceCell.date
+//                    sourceCell.date = DestinationCell.date
+//                    DestinationCell.date = tmpCell.date
+//                }
+            /* セルを上から下に移動 */
+            }else if(sourceIndexPath.row < destinationIndexPath.row){
+//                for i in 0 ..<  (destinationIndexPath.row - sourceIndexPath.row){
+//                    let sourceCell = todos[sourceIndexPath.row + i]
+//                    let DestinationCell = todos[sourceIndexPath.row + i + 1]
+//                    let tmpCell = Task()
+//
+//                    tmpCell.date = sourceCell.date
+//                    sourceCell.date = DestinationCell.date
+//                    DestinationCell.date = tmpCell.date
+//                }
+            }
+            /* 何もしない */
+            else{
+            }
+        }
     }
 
     /* ---------------------------------広告開始----------------------------------------- */

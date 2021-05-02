@@ -469,6 +469,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             let folder = Folder()
             //idを設定
             folder.id = fromAppDelegate.folderNumber
+            //dateを設定
+            folder.date = Date()
             //テキストを反映
             folder.text = ("リスト " + String(fromAppDelegate.folderNumber + 1))
             //タイトル変更未実施状態にする

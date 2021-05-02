@@ -31,6 +31,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     // 初期表示時に必要な処理を設定
     override func viewDidLoad() {
         super.viewDidLoad()
+        dateFix()
         
         // テーブルビューのプロパティ
         tableView.layer.cornerRadius = 8
@@ -63,7 +64,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         // Set the ad unit ID to your own ad unit ID here.
         //本番　ca-app-pub-4013798308034554/1853863648
         //テスト　ca-app-pub-3940256099942544/2934735716
-        bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
+        //bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         /* ---------------------広告終了---------------------------- */
@@ -91,7 +92,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "folderCell", for: indexPath)
         let realm = try! Realm()
-        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
         
         cell.textLabel?.text = folders[indexPath.row].text
         cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 16)
@@ -108,7 +109,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         updateTableHeight()
         //一番下のセルにスクロール
         let realm = try! Realm()
-        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
         if folders.count > 0 {
             let indexPath = NSIndexPath(row: folders.count - 1, section: 0)
             tableView.scrollToRow(at: indexPath as IndexPath, at:.bottom, animated: false)
@@ -126,7 +127,11 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
         tableView.deselectRow(at: indexPath, animated: true)
         
-        fromAppDelegate.folderNumber = indexPath.row
+        let realm = try! Realm()
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
+        fromAppDelegate.folderNumber = folders[indexPath.row].id
+        //フォルダを追加しない
+        fromAppDelegate.add = false
         performSegue(withIdentifier: "goToTodoTableView", sender: self)
     }
     
@@ -150,13 +155,25 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         addButton.layer.borderColor = rgba.cgColor
         
         let realm = try! Realm()
-        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
-        
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
+            
         //フォルダの個数制限（暫定対応）
         if folders.count < maxFolderCount {
+            //idが空いていなければ末尾の番号を送る
             fromAppDelegate.folderNumber = folders.count
-        
+            
+            for i in 0 ..< folders.count {
+                //空いているidを探して、TodoTableViewControllerに送る
+                if folders.filter("id == %@", i).count == 0
+                {
+                    fromAppDelegate.folderNumber = i
+                    break
+                }
+            }
+            //フォルダを追加する
+            fromAppDelegate.add = true
             performSegue(withIdentifier: "goToTodoTableView", sender: self)
+            
         } else {
             let alert = UIAlertController(title: "上限に達しました", message: "新しくフォルダを作成するには、\nフォルダを1つ削除してください", preferredStyle: .alert)
             let okButton = UIAlertAction(title: "OK", style: .default) { (action) in }
@@ -171,14 +188,32 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     @IBAction func debugButtonPush(_ sender: Any) {
         let realm = try! Realm()
         
-        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
         let todos = realm.objects(Task.self).sorted(byKeyPath: "id")
         print(folders)
         print(todos)
     }
     
-    //全データ削除
-    @IBAction func pushTrashButton(_ sender: Any) {
+    //日付情報修正
+    func dateFix(){
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let date = fmt.date(from: "1970-01-01 9:0:0")!
+        
+        let realm = try! Realm()
+        //前バージョンはIDでソートしていたため
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        
+        print(folders.count)
+        
+        for i in 0 ..< folders.count {
+            if folders[i].date == date {
+                try! realm.write {
+                    folders[i].date = Calendar.current.date(byAdding: .day, value: i + 1, to: folders[i].date)!
+                    print("回数:",i)
+                }
+            }
+        }
     }
     
     //設定画面から戻ってきたときに実行する関数
@@ -192,29 +227,29 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         if editingStyle == .delete {
 
             let realm = try! Realm()
-            let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+            let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
             
-            let deleteFolder = folders.filter("id == %@",indexPath.row)
-            let deleteTodos = realm.objects(Task.self).filter("id == %@",indexPath.row).sorted(byKeyPath: "date")
+            let deleteFolder = folders[indexPath.row]
+            let deleteTodos = realm.objects(Task.self).filter("id == %@",deleteFolder.id).sorted(byKeyPath: "date")
             
             try! realm.write {
                 realm.delete(deleteFolder)
                 realm.delete(deleteTodos)
                 
-                //削除したフォルダより下にあるフォルダを抽出
-                for i in 0 ..<  (folders.count - indexPath.row)
-                {
-                    let underFolder = folders[indexPath.row + i]
-                    let underTasks = realm.objects(Task.self).filter("id == %@", indexPath.row + i + 1).sorted(byKeyPath: "date")
-                    
-                    underFolder.id -= 1
-
-                    //フォルダ内のタスクのidを更新する。（ポインタなのでidを更新したタスクから、underTasks配列から無くなっていく)
-                    for _ in 0 ..<  underTasks.count
-                    {
-                        underTasks[0].id -= 1
-                    }
-                }
+//                //削除したフォルダより下にあるフォルダを抽出
+//                for i in 0 ..<  (folders.count - indexPath.row)
+//                {
+//                    //let underFolder = folders[indexPath.row + i]
+//                    let underTasks = realm.objects(Task.self).filter("id == %@", indexPath.row + i + 1).sorted(byKeyPath: "date")
+//                    
+//                    //underFolder.id -= 1 //☆
+//
+//                    //フォルダ内のタスクのidを更新する。（ポインタなのでidを更新したタスクから、underTasks配列から無くなっていく)
+////                    for _ in 0 ..<  underTasks.count
+////                    {
+////                        underTasks[0].id -= 1
+////                    }
+//                }
             }
             //データをリロード
             tableView.reloadData()
@@ -246,31 +281,32 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
     //入れ替え制御
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         let realm = try! Realm()
-        let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
 
         try! realm.write {
             /* セルを下から上に移動 */
             if(sourceIndexPath.row > destinationIndexPath.row){
-//                for i in 0 ..<  (sourceIndexPath.row - destinationIndexPath.row){
-//                    let sourceCell = todos[sourceIndexPath.row - i]
-//                    let DestinationCell = todos[sourceIndexPath.row - i - 1]
-//                    let tmpCell = Task()
-//
-//                    tmpCell.date = sourceCell.date
-//                    sourceCell.date = DestinationCell.date
-//                    DestinationCell.date = tmpCell.date
-//                }
+                for i in 0 ..<  (sourceIndexPath.row - destinationIndexPath.row){
+                    let sourceCell = folders[sourceIndexPath.row - i]
+                    let DestinationCell = folders[sourceIndexPath.row - i - 1]
+                    let tmpCell = Task()
+
+                    tmpCell.date = sourceCell.date
+                    sourceCell.date = DestinationCell.date
+                    DestinationCell.date = tmpCell.date
+                }
+                
             /* セルを上から下に移動 */
             }else if(sourceIndexPath.row < destinationIndexPath.row){
-//                for i in 0 ..<  (destinationIndexPath.row - sourceIndexPath.row){
-//                    let sourceCell = todos[sourceIndexPath.row + i]
-//                    let DestinationCell = todos[sourceIndexPath.row + i + 1]
-//                    let tmpCell = Task()
-//
-//                    tmpCell.date = sourceCell.date
-//                    sourceCell.date = DestinationCell.date
-//                    DestinationCell.date = tmpCell.date
-//                }
+                for i in 0 ..<  (destinationIndexPath.row - sourceIndexPath.row){
+                    let sourceCell = folders[sourceIndexPath.row + i]
+                    let DestinationCell = folders[sourceIndexPath.row + i + 1]
+                    let tmpCell = Task()
+
+                    tmpCell.date = sourceCell.date
+                    sourceCell.date = DestinationCell.date
+                    DestinationCell.date = tmpCell.date
+                }
             }
             /* 何もしない */
             else{

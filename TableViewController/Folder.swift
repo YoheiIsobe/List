@@ -11,7 +11,9 @@ import RealmSwift
 
 class Folder: Object {
     @objc dynamic var id = 0
-
+    
+    @objc dynamic var date = Date()
+    
     @objc dynamic var text = "リスト"
     
     @objc dynamic var titleChanged = false

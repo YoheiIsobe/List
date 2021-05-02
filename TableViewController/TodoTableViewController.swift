@@ -112,7 +112,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         bannerView.rootViewController = self
         //本番　ca-app-pub-4013798308034554/1853863648
         //テスト　ca-app-pub-3940256099942544/2934735716
-        bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
+        //bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         /* ---------------------広告終了---------------------------- */
@@ -133,10 +133,10 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         //フォルダが増える場合は追加する
         addFolder()
         
+        //フォルダのIDを参照して、保持しているタイトルを表示。(fromAppDelegate.folderNumberはidとの紐付けに使う。タイトルはFolder側で保存している値)
         let realm = try! Realm()
-        let folder = realm.objects(Folder.self).sorted(byKeyPath: "id")
-        
-        label.text = folder[fromAppDelegate.folderNumber].text
+        let folders = realm.objects(Folder.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
+        label.text = folders[0].text
         label.sizeToFit()
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(TodoTableViewController.labelTapped))
@@ -158,11 +158,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     override func viewDidAppear(_ animated: Bool) {
         let realm = try! Realm()
         let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
-        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
+        let folder = realm.objects(Folder.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
         
         /* 1つもタスクがなければ */
         if(todos.count == 0){
-            if folders[self.fromAppDelegate.folderNumber].titleChanged == false {
+            if folder[0].titleChanged == false {
                 //タイトル変更のアラートを出す。初回変更なのでtrue
                 changeTitle(initial: true)
             } else {
@@ -373,15 +373,16 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         }
 
         let realm = try! Realm()
-        let folders = realm.objects(Folder.self).sorted(byKeyPath: "id")
-
+        let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
+        let folder = folders.filter("id == %@",fromAppDelegate.folderNumber)
+        
         var uiTextField = UITextField()
         
         let alert = UIAlertController(title: displayTitle, message: "このリストの名前を入力してください。", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default) { [self] (action) in
             try! realm.write {
                 //タイトル変更完了状態にする
-                folders[self.fromAppDelegate.folderNumber].titleChanged = true
+                folder[0].titleChanged = true
                 // 何か入力されて入れば
                 if (uiTextField.text! != "") {
                     //リスト名を保存
@@ -462,15 +463,14 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     
     //フォルダ追加
     func addFolder() {
-        let realm = try! Realm()
-        let folders = realm.objects(Folder.self)
-        
-        if (fromAppDelegate.folderNumber >= folders.count) {
+        //+ボタンで遷移した場合
+        if fromAppDelegate.add == true{
+            let realm = try! Realm()
             let folder = Folder()
             //idを設定
             folder.id = fromAppDelegate.folderNumber
             //テキストを反映
-            folder.text = ("リスト " + String(folders.count + 1))
+            folder.text = ("リスト " + String(fromAppDelegate.folderNumber + 1))
             //タイトル変更未実施状態にする
             folder.titleChanged = false
             //データベースに書き込み

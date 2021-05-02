@@ -13,11 +13,13 @@ import RealmSwift
 class AppDelegate: UIResponder, UIApplicationDelegate {
     /* フォルダNo. */
     public var folderNumber:Int = 0
+    /* 追加フラグ　*/
+    public var add: Bool = false
     
     var viewController: TodoTableViewController!
     
     //スキーマバージョン(新しくスキーマを追加したらこのバージョンを上げて)
-    let version:UInt64 = 2
+    let version:UInt64 = 3
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.

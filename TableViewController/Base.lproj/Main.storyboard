@@ -173,8 +173,12 @@
                     <navigationItem key="navigationItem" title="フォルダ" id="b0Y-lL-wRD">
                         <barButtonItem key="leftBarButtonItem" title="Item" image="gear" catalog="system" id="SmR-Ix-b4M">
                             <connections>
-                                <action selector="pushTrashButton:" destination="2Zl-UC-wWH" id="fOa-23-8q3"/>
                                 <segue destination="Syv-Vi-E7H" kind="presentation" identifier="Setting" id="aha-de-Bit"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Item" id="dl7-JT-fbb">
+                            <connections>
+                                <action selector="debugButtonPush:" destination="2Zl-UC-wWH" id="PCU-XV-1h7"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

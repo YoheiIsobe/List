@@ -30,6 +30,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     let fontSize: CGFloat! = 17         /* フォントサイズ設定 */
     var initialTitleSet = false         //新規作成時にタイトル設定するフラグ
     var closeWithEnter = false          //エンターキーで閉じるフラグ
+    var strikeThrough = true           //取消線を引く
     
     //インスタンス系変数等
     let fromAppDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate        /* デリゲート */
@@ -88,6 +89,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         //ユーザー設定を読み込み
         initialTitleSet = defaults.bool(forKey: "Title")
         closeWithEnter = defaults.bool(forKey: "EnterKey")
+        strikeThrough = defaults.bool(forKey: "StrikeThrough")
         
         // タイトルラベルを太文字
         label.font = UIFont.boldSystemFont(ofSize: 17)
@@ -408,7 +410,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
                 textField.placeholder = "◯◯◯リスト"
             } else {
                 //前回のタイトルを表示
-                textField.placeholder = folders[self.fromAppDelegate.folderNumber].text
+                textField.placeholder = self.label.text
             }
             //タイトルラベルの文字数制限
             guard let text = uiTextField.text else { return }
@@ -430,10 +432,13 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             //selectCell.accessoryType = .checkmark
             //透明にする
             selectCell.textLabel?.textColor = .systemGray4
-            //取り消し線を引く
-            let atr =  NSMutableAttributedString(string: (selectCell.textLabel?.text)!)
-            atr.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, atr.length))
-            selectCell.textLabel?.attributedText = atr
+            //設定がONであれば
+            if strikeThrough == true {
+                //取り消し線を引く
+                let atr =  NSMutableAttributedString(string: (selectCell.textLabel?.text)!)
+                atr.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, atr.length))
+                selectCell.textLabel?.attributedText = atr
+            }
         }else{
             //チェックマーク解除
             //selectCell.accessoryType = .none

@@ -11,9 +11,6 @@ import RealmSwift
 
 class SettingViewController: UIViewController ,UITableViewDataSource, UITableViewDelegate, UIAdaptivePresentationControllerDelegate {
     @IBOutlet weak var settingTableView: UITableView!
-    
-    var initialTitleSet = false //新規作成時にタイトル設定するフラグ
-    var closeWithEnter = false  //エンターキーで閉じるフラグ
     let defaults = UserDefaults.standard    //ユーザーデフォルト
     
     override func viewDidLoad() {
@@ -57,7 +54,7 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
         if section == 0 {
             cellCount = 2
         } else if section == 1{
-            cellCount = 2
+            cellCount = 3
         } else {
             cellCount = 1
         }
@@ -100,6 +97,10 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
                 sw.tag = 1
                 sw.isOn = defaults.bool(forKey: "EnterKey")
                 cell.textLabel?.text = "完了キーでキーボードを閉じる"
+            case 2:
+                sw.tag = 2
+                sw.isOn = defaults.bool(forKey: "StrikeThrough")
+                cell.textLabel?.text = "タップしたときに取り消し線を引く"
             default:
                 break
             }
@@ -126,8 +127,9 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
             defaults.set(sender.isOn, forKey: "Title")
         } else if sender.tag == 1 {
             defaults.set(sender.isOn, forKey: "EnterKey")
+        } else if sender.tag == 2 {
+            defaults.set(sender.isOn, forKey: "StrikeThrough")
         } else {
-            
         }
     }
     
@@ -168,8 +170,8 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
             {
             }
         }
-        //セクション1
-        else if indexPath.section == 1
+        //セクション2
+        else if indexPath.section == 2
         {
             // 全削除
             if indexPath.row == 0

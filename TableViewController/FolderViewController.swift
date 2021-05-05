@@ -64,7 +64,7 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
         // Set the ad unit ID to your own ad unit ID here.
         //本番　ca-app-pub-4013798308034554/1853863648
         //テスト　ca-app-pub-3940256099942544/2934735716
-        //bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
+        bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         /* ---------------------広告終了---------------------------- */
@@ -235,21 +235,6 @@ class FolderViewController: UIViewController ,UITableViewDataSource, UITableView
             try! realm.write {
                 realm.delete(deleteFolder)
                 realm.delete(deleteTodos)
-                
-//                //削除したフォルダより下にあるフォルダを抽出
-//                for i in 0 ..<  (folders.count - indexPath.row)
-//                {
-//                    //let underFolder = folders[indexPath.row + i]
-//                    let underTasks = realm.objects(Task.self).filter("id == %@", indexPath.row + i + 1).sorted(byKeyPath: "date")
-//                    
-//                    //underFolder.id -= 1 //☆
-//
-//                    //フォルダ内のタスクのidを更新する。（ポインタなのでidを更新したタスクから、underTasks配列から無くなっていく)
-////                    for _ in 0 ..<  underTasks.count
-////                    {
-////                        underTasks[0].id -= 1
-////                    }
-//                }
             }
             //データをリロード
             tableView.reloadData()

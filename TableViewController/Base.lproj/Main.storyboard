@@ -176,11 +176,6 @@
                                 <segue destination="Syv-Vi-E7H" kind="presentation" identifier="Setting" id="aha-de-Bit"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" title="Item" id="dl7-JT-fbb">
-                            <connections>
-                                <action selector="debugButtonPush:" destination="2Zl-UC-wWH" id="PCU-XV-1h7"/>
-                            </connections>
-                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="addButton" destination="iU6-01-Zcl" id="wYZ-0f-LB9"/>

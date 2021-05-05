@@ -28,7 +28,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     let maxLength: Int = 21             /* セルに入れられる最大文字数 */
     let labelMaxLength: Int = 10        /* ラベルに入れられる最大文字数 */
     let fontSize: CGFloat! = 17         /* フォントサイズ設定 */
-    //var enterSetting = false          /*エンター設定 */
+    var initialTitleSet = false         //新規作成時にタイトル設定するフラグ
+    var closeWithEnter = false          //エンターキーで閉じるフラグ
     
     //インスタンス系変数等
     let fromAppDelegate: AppDelegate = UIApplication.shared.delegate as! AppDelegate        /* デリゲート */
@@ -38,6 +39,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
     var screenWidth:CGFloat!            /* Screenの幅 */
     var tmpText = ""                    /* 入力文字列の一時保存用 */
     var titleLabelChange = true         /* タイトルラベル変更中 */
+    let defaults = UserDefaults.standard    /* ユーザーデフォルト　*/
     var bannerView: GADBannerView!      /* 広告 */
     
     //起動時に呼ばれる
@@ -83,9 +85,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         doneButton.isEnabled = false
         doneButton.title = ""
         
-//        //エンター設定を反映
-//        let defaults = UserDefaults.standard
-//        enterSetting = (defaults.object(forKey: "SETTING") != nil)
+        //ユーザー設定を読み込み
+        initialTitleSet = defaults.bool(forKey: "Title")
+        closeWithEnter = defaults.bool(forKey: "EnterKey")
         
         // タイトルラベルを太文字
         label.font = UIFont.boldSystemFont(ofSize: 17)
@@ -162,7 +164,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         
         /* 1つもタスクがなければ */
         if(todos.count == 0){
-            if folder[0].titleChanged == false {
+            /* 新規作成時かつ、ユーザー設定ON */
+            if folder[0].titleChanged == false && initialTitleSet == true {
                 //タイトル変更のアラートを出す。初回変更なのでtrue
                 changeTitle(initial: true)
             } else {
@@ -171,7 +174,6 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             }
         }
     }
-
 
     /* ---------------------セル設定---------------------------- */
     //テーブルビューにセクションをいくつ作成するか
@@ -200,13 +202,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         //テキストを反映
         cell.textLabel?.text = todo.text
         
-        //チェックマークが付いていたら
-        if todo.check == true {
-            checkText(selectCell: cell, checkMark: true)
-        }else{
-            cell.accessoryType = .none
-            checkText(selectCell: cell, checkMark: false)
-        }
+        //チェックマーク設定呼び出し
+        checkText(selectCell: cell, checkMark: todo.check)
+
         return cell
     }
     
@@ -232,17 +230,14 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         let todos = realm.objects(Task.self).filter("id == %@",fromAppDelegate.folderNumber).sorted(byKeyPath: "date")
         let todo = todos[indexPath.row]
         //反転
-        if todo.check == false {
-            try! realm.write {
+        try! realm.write {
+            if todo.check == false {
                 todo.check = true
-            }
-            checkText(selectCell: cell!, checkMark: true)
-        }else{
-            try! realm.write {
+            } else {
                 todo.check = false
             }
-            checkText(selectCell: cell!, checkMark: false)
         }
+        checkText(selectCell: cell!, checkMark: todo.check)
     }
     
     // ドラッグ
@@ -321,6 +316,11 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             self.tableView.reloadData()
             // キーボードが重なっていたらスクロールさせる
             scrollUpdate()
+        } else {
+            // ユーザー設定がONであれば、キーボードを閉じる
+            if closeWithEnter == true {
+                textField.resignFirstResponder()
+            }
         }
     }
     
@@ -481,6 +481,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
             }
             //リロード
             self.tableView.reloadData()
+            //フォルダ重複保存防止
+            fromAppDelegate.add = false
         }
     }
 

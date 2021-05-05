@@ -12,8 +12,9 @@ import RealmSwift
 class SettingViewController: UIViewController ,UITableViewDataSource, UITableViewDelegate, UIAdaptivePresentationControllerDelegate {
     @IBOutlet weak var settingTableView: UITableView!
     
-    //エンターキーで閉じるフラグ
-    //var CloseEnterKey = false
+    var initialTitleSet = false //新規作成時にタイトル設定するフラグ
+    var closeWithEnter = false  //エンターキーで閉じるフラグ
+    let defaults = UserDefaults.standard    //ユーザーデフォルト
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,7 +42,7 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
     
     // セクション数
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 3
     }
     
     //セルの高さ
@@ -55,8 +56,8 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
         
         if section == 0 {
             cellCount = 2
-//        } else if section == 1{
-//            cellCount = 2
+        } else if section == 1{
+            cellCount = 2
         } else {
             cellCount = 1
         }
@@ -84,21 +85,28 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
                 break
             }
         //セクション1
-//        case 1:
-//            switch indexPath.row {
-//            case 0:
-//                let sw = UISwitch()
-//                cell.textLabel?.text = "空白入力を許可"
-//                cell.accessoryView = sw
-//            case 1:
-//                let sw = UISwitch()
-//                cell.textLabel?.text = "Enterでキーボードを閉じる"
-//                cell.accessoryView = sw
-//            default:
-//                break
-//            }
-        //セクション1
         case 1:
+            // UIスイッチをインスタンス化
+            let sw = UISwitch()
+            // UISwitch値が変更された時に呼び出すメソッドの設定
+            sw.addTarget(self, action: #selector(changeSwitch), for: UIControl.Event.valueChanged)
+            
+            switch indexPath.row {
+            case 0:
+                sw.tag = 0
+                sw.isOn = defaults.bool(forKey: "Title")
+                cell.textLabel?.text = "新規作成時にタイトルを設定する"
+            case 1:
+                sw.tag = 1
+                sw.isOn = defaults.bool(forKey: "EnterKey")
+                cell.textLabel?.text = "完了キーでキーボードを閉じる"
+            default:
+                break
+            }
+            cell.accessoryView = sw
+            
+        //セクション2
+        case 2:
             switch indexPath.row {
             case 0:
                 cell.textLabel?.text = "データ全消去"
@@ -108,9 +116,19 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
         default :
             break
         }
-
-        
         return cell
+    }
+    
+    //UIスイッチ共通関数
+    @objc func changeSwitch(sender: UISwitch) {
+        //値をユーザーデフォルトに保存
+        if sender.tag == 0 {
+            defaults.set(sender.isOn, forKey: "Title")
+        } else if sender.tag == 1 {
+            defaults.set(sender.isOn, forKey: "EnterKey")
+        } else {
+            
+        }
     }
     
     //×ボタンでフォルダ画面に戻る
@@ -138,23 +156,18 @@ class SettingViewController: UIViewController ,UITableViewDataSource, UITableVie
             }
         }
         
-//        セクション1
-//        else if indexPath.section == 1
-//        {
-//            // 空白タップ許可
-//            if indexPath.row == 0
-//            {
-//
-//            }
-//            // キーボードでクローズ
-//            else if indexPath.row == 1
-//            {
-//                CloseEnterKey = true
-//
-//                let defaults = UserDefaults.standard
-//                defaults.set(CloseEnterKey, forKey: "SETTING")
-//            }
-//        }
+        //セクション1
+        else if indexPath.section == 1
+        {
+            // 空白タップ許可
+            if indexPath.row == 0
+            {
+            }
+            // キーボードでクローズ
+            else if indexPath.row == 1
+            {
+            }
+        }
         //セクション1
         else if indexPath.section == 1
         {

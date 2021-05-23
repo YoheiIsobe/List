@@ -116,7 +116,7 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
         bannerView.rootViewController = self
         //本番　ca-app-pub-4013798308034554/1853863648
         //テスト　ca-app-pub-3940256099942544/2934735716
-        //bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
+        bannerView.adUnitID = "ca-app-pub-4013798308034554/1853863648"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         /* ---------------------広告終了---------------------------- */
@@ -175,6 +175,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
                 textField.becomeFirstResponder()
             }
         }
+        
+        print(fromAppDelegate.folderNumber)
     }
 
     /* ---------------------セル設定---------------------------- */
@@ -376,10 +378,9 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
 
         let realm = try! Realm()
         let folders = realm.objects(Folder.self).sorted(byKeyPath: "date")
-        let folder = folders.filter("id == %@",fromAppDelegate.folderNumber)
-        
+        let folder = folders.filter("id == %@",fromAppDelegate.folderNumber) //idを元にフォルダ情報を取得
         var uiTextField = UITextField()
-        
+
         let alert = UIAlertController(title: displayTitle, message: "このリストの名前を入力してください。", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default) { [self] (action) in
             try! realm.write {
@@ -388,8 +389,8 @@ class TodoTableViewController: UIViewController ,UITableViewDataSource, UITableV
                 // 何か入力されて入れば
                 if (uiTextField.text! != "") {
                     //リスト名を保存
-                    folders[self.fromAppDelegate.folderNumber].text = uiTextField.text!
-                    self.label.text = folders[self.fromAppDelegate.folderNumber].text
+                    folder[0].text = uiTextField.text!
+                    self.label.text = folder[0].text
                     self.label.sizeToFit()
                     //リロード
                     self.tableView.reloadData()
